@@ -14,7 +14,7 @@ totImages   = length(imag_struct(not([imag_struct.isdir])));
 %Reading
 data = zeros(totImages,24,24,3,'uint8');
 
-for image_nbr = 1:totImages
+for image_nbr = 1:100
     image_name = [imag_folder 'blob' num2str(image_nbr) '.jpeg'];
     image_file = imread(image_name);
     data(image_nbr, :, :,:) = image_file;        
@@ -30,5 +30,5 @@ Target{1}=[];
 Target = cell2mat(Target);
 
 %% Saving 
-save([targ_folder 'Data.mat'], 'data')
-save([targ_folder 'Target.mat'], 'Target')
+
+save(['Target.mat', 'Target')
