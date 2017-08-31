@@ -22,21 +22,34 @@ imag_folder = [curr_folder '\Data\Blobs\'];
 imag_folder_struct = dir(imag_folder);
 
 totImages          = length(imag_folder_struct(not([imag_folder_struct.isdir])));
-if tf(1)==1 || tf(2)==1
+if tf(1)==1 || tf(2)==1 % Veirfy if it is a lowercase or uppercase
     totImages          = length(imag_folder_struct(not([imag_folder_struct.isdir])))-1;
 end
 
+%% Training and Validation data
+perc       = 0.7;
+trainIndex  = floor(perc*totImages);
+validIndex  = totImages-trainIndex;
 
-%% Data
-Data = zeros(totImages,box_size,box_size,3,'uint8');
+% Preallocating
+trainData = zeros(trainIndex,1,box_size,box_size,'uint8');
+validData = zeros(validIndex,1,box_size,box_size,'uint8');
 
-for image_nbr = 1:totImages
+% Train data
+for image_nbr = 1:trainIndex
     image_name = [imag_folder 'blob' num2str(image_nbr) '.jpeg'];
     image_file = imread(image_name);
-    Data(image_nbr, :, :,:) = image_file;        
+    trainData(image_nbr, :, :,:) = rgb2gray(image_file);        
 end
 
-%% Targets
+% Validation data
+for image_nbr = validIndex:totImages
+    image_name = [imag_folder 'blob' num2str(image_nbr) '.jpeg'];
+    image_file = imread(image_name);
+    validData(image_nbr, :, :,:) = rgb2gray(image_file);        
+end
+
+%% Training and Validation Targets
 Target= (csvimport([targ_folder 'Target.csv']));
 
 %Delete header
@@ -45,8 +58,15 @@ Target{1}=[];
 %Convert into normal array
 Target = cell2mat(Target);
 
+%Spliting targets
+trainTarget = Target(1:trainIndex);
+validTarget = Target(trainIndex+1:end);
+
 %% Saving 
-save([targ_folder   'Data.mat'], 'Data')
-save([targ_folder 'Target.mat'], 'Target')
+save([targ_folder   'trainData.mat'], 'trainData')
+save([targ_folder   'validData.mat'], 'validData')
+
+save([targ_folder 'trainTarget.mat'], 'trainTarget')
+save([targ_folder 'validTarget.mat'], 'validTarget')
 
 disp('Finished')
